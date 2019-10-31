@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './Menu.css'
 import Meal from './Meal';
+import Header from './Header'
 import uuid from 'uuid/v4';
 const dbRecipes = require('./recipes.json');
 const dbRecipes2 = require('./recipes2.json');
@@ -18,6 +19,8 @@ class Menu extends Component {
       spinner: 'Loading...',
       finishedLoading: false,
       totalCaloriesPerServing: 0,
+      macrosInG: {fat: 0, carbs: 0, protein: 0},
+      macros: {fat: 0, carbs: 0, protein: 0},
       totalFatPerServing: 0,
       totalCarbsPerServing: 0,
       totalProteinPerServing: 0,
@@ -47,7 +50,6 @@ class Menu extends Component {
     // const prevMealSelected = this.state.meals.filter(meal => meal.selected)
     // this.setState({meals: newMeals, finishedLoading: true});
     this.addMeals(newMeals);
-
   }
 
   addMeals = (newMeals) => {
@@ -61,7 +63,6 @@ class Menu extends Component {
           combinedMeals.push(newMeal);
         }
       })
-      console.log('inside addMeals', combinedMeals);
   
       return {meals: [...combinedMeals], finishedLoading: true};
     });
@@ -70,11 +71,12 @@ class Menu extends Component {
   handleSearch = (e) => {
     e.preventDefault();
     console.log('search was clicked');
-    const searchText = document.querySelector('.search__input').value.trim();
-    if (searchText !== '') {
-      console.log('this was searched', searchText);
-      this.fetchMeals(searchText);
-    }
+    const searchElement = document.querySelector('.search__input')
+    const searchText = searchElement.value.trim();
+    this.fetchMeals(searchText);
+    searchElement.value = '';
+    searchElement.focus();
+    
   }
 
   toggleSelected = (id) => {
@@ -85,12 +87,15 @@ class Menu extends Component {
       copy[foundMealIndex].selected = !copy[foundMealIndex].selected;
       
       // const totalCalories = this.getTotalCaloriesPerServing(copy);
+      // const total = this.getTotalFatPerServing(copy) + this.getTotalCarbsPerServing(copy) + 
       return {
         meals: copy,
         totalCaloriesPerServing: this.getTotalCaloriesPerServing(copy),
-        totalFatPerServing: this.getTotalFatPerServing(copy),
-        totalCarbsPerServing: this.getTotalCarbsPerServing(copy),
-        totalProteinPerServing: this.getTotalProteinPerServing(copy),
+        macrosInG: {fat: this.getTotalFatPerServing(copy), carbs: this.getTotalCarbsPerServing(copy), protein: this.getTotalProteinPerServing(copy)},
+        macros: {fat: 9 * this.getTotalFatPerServing(copy) / this.getTotalCaloriesPerServing(copy), carbs: 4 * this.getTotalCarbsPerServing(copy) / this.getTotalCaloriesPerServing(copy), protein: 4 * this.getTotalProteinPerServing(copy) / this.getTotalCaloriesPerServing(copy)},
+        // totalFatPerServing: this.getTotalFatPerServing(copy),
+        // totalCarbsPerServing: this.getTotalCarbsPerServing(copy),
+        // totalProteinPerServing: this.getTotalProteinPerServing(copy),
       };
     });
     //  this.getTotalCaloriesPerServing();
@@ -136,7 +141,15 @@ class Menu extends Component {
     return Math.round(totalProtein);
   }
 
+  getPercentage = () => {
+    const [fatCalories, carbsCalories, proteinCalories] = [9 * this.totalFatPerServing, 4 * this.totalCarbsPerServing, 4 * this.totalProteinPerServing];
+    const totalCalories =  fatCalories + carbsCalories + proteinCalories;
+    console.log('fatCaolories', this.totalFatPerServing, fatCalories);
+    return { fat: fatCalories/totalCalories, carbs: carbsCalories/totalCalories, protein: proteinCalories/totalCalories};
+  }
+
   render() {
+    console.log('total calorie', this.state.totalCaloriesPerServing, this.state.macrosInG, this.state.macros)
     const mealsHTML = this.state.finishedLoading ?
       <div className="meals">
         {this.state.meals.map(meal => (
@@ -162,25 +175,14 @@ class Menu extends Component {
 
     return (
       <div className="container">
-        <header className="Menu">
-          <h1 className="Menu__title">Menu</h1>
-          <p className="Menu__description">
-            Choose the meals you want:
-          </p>
-        </header>
-
-        <form className="search">
-          <input className="search__input" type="text" name="search" placeholder="Search for a meal" />
-          <button onClick={this.handleSearch} className="btn btn-search" type="submit">Search</button>
-        </form>
+        <Header handleSearch={this.handleSearch}/>
 
         <section className="total">
           <h2 className="total">Total:</h2>
           <p className="total__calories">Total Calories: {this.state.totalCaloriesPerServing}</p>
-          <p className="total__fat">Total Fat: {this.state.totalFatPerServing}</p>
-          <p className="total__carbs">Total Carbs: {this.state.totalCarbsPerServing}</p>
-          <p className="total__protein">Total Protein: {this.state.totalProteinPerServing}</p>
-          
+          <p className="total__fat">Total Fat: {this.state.macrosInG.fat}g {Math.round(100 * this.state.macros.fat)}%</p>
+          <p className="total__carbs">Total Carbs: {this.state.macrosInG.carbs}g {Math.round(100 * this.state.macros.carbs)}%</p>
+          <p className="total__protein">Total Protein: {this.state.macrosInG.protein}g {Math.round(100 * this.state.macros.protein)}%</p>
         </section>
         
 
