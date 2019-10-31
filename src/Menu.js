@@ -3,6 +3,12 @@ import './Menu.css'
 import Meal from './Meal';
 import uuid from 'uuid/v4';
 const dbRecipes = require('./recipes.json');
+const dbRecipes2 = require('./recipes2.json');
+
+const apiId = '163dbcc0';
+const apiKey = 'de904e389374c9ea442b9119d63509b2';
+const searchQuery = '';
+const baseURL = `https://api.edamam.com/search?q=${searchQuery}&app_id=${apiId}&app_key=${apiKey}`;
 
 class Menu extends Component {
   constructor(props) {
@@ -22,17 +28,54 @@ class Menu extends Component {
     this.fetchMeals(this.props.query);
   }
 
-  fetchMeals = (query) => {
-    query = 'salt';
-    const dbRecipesWithSelection = dbRecipes.hits.map(meal => {
-      return {...meal, selected: false, id: uuid()};
-    });
-    // console.log(dbRecipesWithSelection);
-    // this.setState({meals: dbRecipes.hits, finishedLoading: true})  
-    this.setState({meals: dbRecipesWithSelection, finishedLoading: true})  
+  fetchMeals = (query = 'vegetarian') => {
+    console.log('Inside fetchMeals with query:', query);
+
+    let newMeals = [];
+
+    if (query === 'chicken') {
+      newMeals = dbRecipes.hits.map(meal => {
+        return {...meal, selected: false, id: uuid()};
+      });
+    } else if (query === 'vegetarian') {
+      newMeals = dbRecipes2.hits.map(meal => {
+        return {...meal, selected: false, id: uuid()};
+      });
+    }
+    
+      // console.log('inside fetchmeals chicken', newMeals)
+    // const prevMealSelected = this.state.meals.filter(meal => meal.selected)
+    // this.setState({meals: newMeals, finishedLoading: true});
+    this.addMeals(newMeals);
+
   }
 
-  // getMeal = (id) => prevState.meals.find(meal => meal.id === id);
+  addMeals = (newMeals) => {
+    
+    this.setState(prevState => {
+      const prevSelectedMeals = prevState.meals.filter(meal => meal.selected);
+      const combinedMeals = [...prevSelectedMeals];
+      newMeals.forEach(newMeal => {
+        const duplicateMeal = prevSelectedMeals.some(prevSelectedMeal => prevSelectedMeal.recipe.label === newMeal.recipe.label)
+        if (!duplicateMeal) {
+          combinedMeals.push(newMeal);
+        }
+      })
+      console.log('inside addMeals', combinedMeals);
+  
+      return {meals: [...combinedMeals], finishedLoading: true};
+    });
+  }
+
+  handleSearch = (e) => {
+    e.preventDefault();
+    console.log('search was clicked');
+    const searchText = document.querySelector('.search__input').value.trim();
+    if (searchText !== '') {
+      console.log('this was searched', searchText);
+      this.fetchMeals(searchText);
+    }
+  }
 
   toggleSelected = (id) => {
     this.setState(prevState => {
@@ -66,7 +109,7 @@ class Menu extends Component {
       .filter(meal => meal.selected === true)
       .reduce((acc, meal) => acc + meal.recipe.calories/meal.recipe.yield, 0);
 
-    return totalCalories;
+    return Math.round(totalCalories);
   }
 
   getTotalFatPerServing = (meals) => {
@@ -74,7 +117,7 @@ class Menu extends Component {
       .filter(meal => meal.selected === true)
       .reduce((acc, meal) => acc + meal.recipe.digest[0].total/meal.recipe.yield, 0);
 
-    return totalFat;
+    return Math.round(totalFat);
   }
 
   getTotalCarbsPerServing = (meals) => {
@@ -82,7 +125,7 @@ class Menu extends Component {
       .filter(meal => meal.selected === true)
       .reduce((acc, meal) => acc + meal.recipe.digest[1].total/meal.recipe.yield, 0);
 
-    return totalCarbs;
+    return Math.round(totalCarbs);
   }
 
   getTotalProteinPerServing = (meals) => {
@@ -90,7 +133,7 @@ class Menu extends Component {
       .filter(meal => meal.selected === true)
       .reduce((acc, meal) => acc + meal.recipe.digest[2].total/meal.recipe.yield, 0);
 
-    return totalProtein;
+    return Math.round(totalProtein);
   }
 
   render() {
@@ -127,7 +170,8 @@ class Menu extends Component {
         </header>
 
         <form className="search">
-          <input type="text" name="search" placeholder="Search for a meal">
+          <input className="search__input" type="text" name="search" placeholder="Search for a meal" />
+          <button onClick={this.handleSearch} className="btn btn-search" type="submit">Search</button>
         </form>
 
         <section className="total">
