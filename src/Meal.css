@@ -1,4 +1,9 @@
 .Meal {
   background-color: rgb(245, 245, 245);
   max-width: 500px;
+  margin: .5rem;
+}
+
+.Meal-selected {
+  background-color: rgb(252, 252, 187);
 }

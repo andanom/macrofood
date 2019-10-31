@@ -14,7 +14,7 @@ class Meal extends Component {
   render() {
     const {id, selected, label, image, servings, ingredientLines, calories, fat, carbs, protein} = this.props;
     return(
-      <article className={"Meal" + (selected ? " Meal-selected" : "")} onClick={() => this.props.handleSelect(id)}>
+      <article className={"Meal" + (selected ? " Meal-selected" : "")} onClick={() => this.props.handleSelect(id, selected)}>
         <h2 className="Meal__label">{label}</h2>
         <img src={image} alt={label} />
         <p className="ingredientLines">{ingredientLines}</p>
