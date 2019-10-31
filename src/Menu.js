@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import Meal from './Meal';
 const dbRecipes = require('./recipes.json');
 
 class Menu extends Component {
@@ -6,7 +7,6 @@ class Menu extends Component {
     super(props);
     this.state = {
       meals: [],
-      mealsSelected: [],
       spinner: 'Loading...',
       finishedLoading: false,
     }
@@ -18,12 +18,39 @@ class Menu extends Component {
 
   fetchMeals = (query) => {
     query = 'salt';
-    this.setState({meals: dbRecipes, finishedLoading: true})  
+    const dbRecipesWithSelection = dbRecipes.hits.map(meal => {
+      return {...meal, selected: true};
+    });
+    // console.log(dbRecipesWithSelection);
+    // this.setState({meals: dbRecipes.hits, finishedLoading: true})  
+    this.setState({meals: dbRecipesWithSelection, finishedLoading: true})  
+  }
+
+  handleClickInMenu = (label) => {
+    console.log('this meal was clicked from Menu component', label);
   }
 
   render() {
     const mealsHTML = this.state.finishedLoading ?
-      this.state.meals.hits[0].recipe.label
+      <div className="testing">
+        {this.state.meals.map(meal => (
+          <Meal
+            key={meal.recipe.label}
+            label={meal.recipe.label}
+            image={meal.recipe.image}
+            servings={meal.recipe.yield}
+            ingredientLines={meal.recipe.ingredientLines}
+            calories={meal.recipe.calories}
+            fat={meal.recipe.digest[0].total}
+            carbs={meal.recipe.digest[1].total}
+            protein={meal.recipe.digest[2].total}
+            selected={meal.selected}
+            handleClickInMenu={this.handleClickInMenu}
+          />
+        ))}
+        
+      </div>
+
       : this.state.spinner;
 
     return (
@@ -38,6 +65,7 @@ class Menu extends Component {
         <div className="main">
           {mealsHTML}
         </div>
+    
       </div>
     );
   }
