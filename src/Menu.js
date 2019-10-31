@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Meal from './Meal';
+import uuid from 'uuid/v4';
 const dbRecipes = require('./recipes.json');
 
 class Menu extends Component {
@@ -19,14 +20,15 @@ class Menu extends Component {
   fetchMeals = (query) => {
     query = 'salt';
     const dbRecipesWithSelection = dbRecipes.hits.map(meal => {
-      return {...meal, selected: true};
+      return {...meal, selected: false, id: uuid()};
     });
     // console.log(dbRecipesWithSelection);
     // this.setState({meals: dbRecipes.hits, finishedLoading: true})  
     this.setState({meals: dbRecipesWithSelection, finishedLoading: true})  
   }
 
-  handleClickInMenu = (label) => {
+  handleSelect = (label) => {
+
     console.log('this meal was clicked from Menu component', label);
   }
 
@@ -35,7 +37,9 @@ class Menu extends Component {
       <div className="testing">
         {this.state.meals.map(meal => (
           <Meal
-            key={meal.recipe.label}
+            key={meal.id}
+            id={meal.id}
+            selected={meal.selected}
             label={meal.recipe.label}
             image={meal.recipe.image}
             servings={meal.recipe.yield}
@@ -44,8 +48,7 @@ class Menu extends Component {
             fat={meal.recipe.digest[0].total}
             carbs={meal.recipe.digest[1].total}
             protein={meal.recipe.digest[2].total}
-            selected={meal.selected}
-            handleClickInMenu={this.handleClickInMenu}
+            handleSelect={this.handleSelect}
           />
         ))}
         

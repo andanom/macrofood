@@ -7,14 +7,14 @@ class Meal extends Component {
 
   }
 
-  handleSelect = () => {
-    console.log('this was clicked', this.props.label);
-  }
+  // handleSelect = () => {
+  //   console.log('this was clicked', this.props.label);
+  // }
 
   render() {
-    const {label, image, servings, ingredientLines, calories, fat, carbs, protein, selected} = this.props;
+    const {id, selected, label, image, servings, ingredientLines, calories, fat, carbs, protein} = this.props;
     return(
-      <article className={"Meal" + {label}} onClick={() => this.props.handleClickInMenu(label)}>
+      <article className={"Meal" + (selected ? " Meal-selected" : "")} onClick={() => this.props.handleSelect(id)}>
         <h2 className="Meal__label">{label}</h2>
         <img src={image} alt={label} />
         <p className="ingredientLines">{ingredientLines}</p>
