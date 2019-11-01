@@ -19,3 +19,8 @@ code {
   padding: 0;
   box-sizing: border-box;
 }
+
+body {
+  font-family: 'Lato', Arial, Helvetica, sans-serif;
+}
+

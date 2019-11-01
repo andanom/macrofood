@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
-import './Menu.css'
-import Meal from './Meal';
-import Header from './Header'
 import uuid from 'uuid/v4';
+import './Macrofood.css';
+import Header from './Header';
+import Total from './Total';
+import Meal from './Meal';
+
 const dbRecipes = require('./recipes.json');
 const dbRecipes2 = require('./recipes2.json');
 
 const apiId = '163dbcc0';
 const apiKey = 'de904e389374c9ea442b9119d63509b2';
-const searchQuery = '';
-const baseURL = `https://api.edamam.com/search?q=${searchQuery}&app_id=${apiId}&app_key=${apiKey}`;
 
-class Menu extends Component {
+class Macrofood extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,27 +31,35 @@ class Menu extends Component {
     this.fetchMeals(this.props.query);
   }
 
+  // fetch data from dbRecipies.json and dbRecipies2.json
   fetchMeals = (query = 'vegetarian') => {
-    console.log('Inside fetchMeals with query:', query);
-
     let newMeals = [];
 
     if (query === 'chicken') {
-      newMeals = dbRecipes.hits.map(meal => {
-        return {...meal, selected: false, id: uuid()};
-      });
+      newMeals = dbRecipes.hits.map(meal => ({...meal, selected: false, id: uuid()}));
     } else if (query === 'vegetarian') {
-      newMeals = dbRecipes2.hits.map(meal => {
-        return {...meal, selected: false, id: uuid()};
-      });
+      newMeals = dbRecipes2.hits.map(meal => ({...meal, selected: false, id: uuid()}));
     }
     
-      // console.log('inside fetchmeals chicken', newMeals)
-    // const prevMealSelected = this.state.meals.filter(meal => meal.selected)
-    // this.setState({meals: newMeals, finishedLoading: true});
     this.addMeals(newMeals);
   }
 
+  // fetch data from real API
+  // fetchMeals = async (query) => {
+  //   const baseURL = `https://api.edamam.com/search?q=${query}&app_id=${apiId}&app_key=${apiKey}`;
+  //   let newMeals = [];
+
+  //   try {
+  //     const data = await fetch(baseURL);
+  //     const recipes = await data.json();
+  //     newMeals = recipes.hits.map(meal => ({...meal, selected: false, id: uuid()}));
+  //   } catch (e) {
+  //     console.log('Something went wrong with fetching', e);
+  //   }
+    
+  //   this.addMeals(newMeals);
+  // }
+  
   addMeals = (newMeals) => {
     
     this.setState(prevState => {
@@ -70,7 +78,6 @@ class Menu extends Component {
 
   handleSearch = (e) => {
     e.preventDefault();
-    console.log('search was clicked');
     const searchElement = document.querySelector('.search__input')
     const searchText = searchElement.value.trim();
     this.fetchMeals(searchText);
@@ -86,27 +93,18 @@ class Menu extends Component {
       const copy = JSON.parse(JSON.stringify(prevState.meals));
       copy[foundMealIndex].selected = !copy[foundMealIndex].selected;
       
-      // const totalCalories = this.getTotalCaloriesPerServing(copy);
-      // const total = this.getTotalFatPerServing(copy) + this.getTotalCarbsPerServing(copy) + 
       return {
         meals: copy,
         totalCaloriesPerServing: this.getTotalCaloriesPerServing(copy),
         macrosInG: {fat: this.getTotalFatPerServing(copy), carbs: this.getTotalCarbsPerServing(copy), protein: this.getTotalProteinPerServing(copy)},
         macros: {fat: 9 * this.getTotalFatPerServing(copy) / this.getTotalCaloriesPerServing(copy), carbs: 4 * this.getTotalCarbsPerServing(copy) / this.getTotalCaloriesPerServing(copy), protein: 4 * this.getTotalProteinPerServing(copy) / this.getTotalCaloriesPerServing(copy)},
-        // totalFatPerServing: this.getTotalFatPerServing(copy),
-        // totalCarbsPerServing: this.getTotalCarbsPerServing(copy),
-        // totalProteinPerServing: this.getTotalProteinPerServing(copy),
       };
     });
-    //  this.getTotalCaloriesPerServing();
   }
 
   handleSelect = (id, selected) => {
     console.log('this meal was clicked from Menu component', id, selected);
     this.toggleSelected(id);
-   
-    // toggleSelected();
-    // this.setState(prevState => ({...prevState.meals, prevState.meals}))
   }
 
   getTotalCaloriesPerServing = (meals) => {
@@ -141,15 +139,7 @@ class Menu extends Component {
     return Math.round(totalProtein);
   }
 
-  getPercentage = () => {
-    const [fatCalories, carbsCalories, proteinCalories] = [9 * this.totalFatPerServing, 4 * this.totalCarbsPerServing, 4 * this.totalProteinPerServing];
-    const totalCalories =  fatCalories + carbsCalories + proteinCalories;
-    console.log('fatCaolories', this.totalFatPerServing, fatCalories);
-    return { fat: fatCalories/totalCalories, carbs: carbsCalories/totalCalories, protein: proteinCalories/totalCalories};
-  }
-
   render() {
-    console.log('total calorie', this.state.totalCaloriesPerServing, this.state.macrosInG, this.state.macros)
     const mealsHTML = this.state.finishedLoading ?
       <div className="meals">
         {this.state.meals.map(meal => (
@@ -167,8 +157,7 @@ class Menu extends Component {
             protein={meal.recipe.digest[2].total}
             handleSelect={this.handleSelect}
           />
-        ))}
-        
+        ))}  
       </div>
 
       : this.state.spinner;
@@ -176,23 +165,16 @@ class Menu extends Component {
     return (
       <div className="container">
         <Header handleSearch={this.handleSearch}/>
-
-        <section className="total">
-          <h2 className="total">Total:</h2>
-          <p className="total__calories">Total Calories: {this.state.totalCaloriesPerServing}</p>
-          <p className="total__fat">Total Fat: {this.state.macrosInG.fat}g {Math.round(100 * this.state.macros.fat)}%</p>
-          <p className="total__carbs">Total Carbs: {this.state.macrosInG.carbs}g {Math.round(100 * this.state.macros.carbs)}%</p>
-          <p className="total__protein">Total Protein: {this.state.macrosInG.protein}g {Math.round(100 * this.state.macros.protein)}%</p>
-        </section>
-        
+        {this.state.macrosInG.carbs === 0 ? ''
+        : <Total totalCaloriesPerServing={this.state.totalCaloriesPerServing} macrosInG={this.state.macrosInG} macros={this.state.macros} />
+        }
 
         <div className="main">
           {mealsHTML}
         </div>
-    
       </div>
     );
   }
 }
 
-export default Menu;
+export default Macrofood;

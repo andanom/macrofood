@@ -1,0 +1,18 @@
+.Total {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.Total__fcp-container {
+  margin: 2rem 0 2rem;
+  display: flex;
+  justify-content: space-around;
+}
+
+.Total__fat__percentage,
+.Total__carbs__percentage,
+.Total__protein__percentage {
+  margin-top: 1rem;
+  font-size: 2rem;
+  font-weight: bold;
+}

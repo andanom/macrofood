@@ -1,31 +1,24 @@
-import React, {Component} from 'react';
+import React from 'react';
 import './Meal.css';
 
-class Meal extends Component {
-  constructor(props) {
-    super(props);
+const Meal = (props) => {
+    const {id, selected, label, image, servings, ingredientLines, calories, fat, carbs, protein} = props;
 
-  }
-
-  // handleSelect = () => {
-  //   console.log('this was clicked', this.props.label);
-  // }
-
-  render() {
-    const {id, selected, label, image, servings, ingredientLines, calories, fat, carbs, protein} = this.props;
     return(
-      <article className={"Meal" + (selected ? " Meal-selected" : "")} onClick={() => this.props.handleSelect(id, selected)}>
+      <article className={"Meal" + (selected ? " Meal-selected" : "")} onClick={() => props.handleSelect(id, selected)}>
         <h2 className="Meal__label">{label}</h2>
-        <img src={image} alt={label} />
+        <img className="Meal__img" src={image} alt={label} />
         <p className="ingredientLines">{ingredientLines}</p>
-        <p className="servings">number of servings: {servings}</p>
-        <p className="calories">calories: {calories}</p>
-        <p className="fat">fat: {fat}</p>
-        <p className="carbs">carbs: {carbs}</p>
-        <p className="protein">protein: {protein}</p>
+        <ul className="Meal__macro-list">
+          <li className="servings">number of servings: {servings}</li>
+          <li className="calories">calories: {Math.round(calories)}g</li>
+          <li className="fat">fat: {Math.round(fat)}g</li>
+          <li className="carbs">carbs: {Math.round(carbs)}g</li>
+          <li className="protein">protein: {Math.round(protein)}g</li>
+        </ul>
       </article>
     );
-  }
-}
+  
+};
 
 export default Meal;

@@ -1,10 +1,23 @@
 .Meal {
   background-color: rgb(245, 245, 245);
-  max-width: 500px;
+  max-width: 400px;
   margin: .5rem;
-  padding: .5rem;
+  padding: 1rem;
 }
 
 .Meal-selected {
   background-color: rgb(252, 252, 187);
+}
+
+.Meal__label {
+  margin-bottom: .5rem;
+}
+
+.Meal__img {
+  width: 100%;
+  margin-bottom: .5rem;
+}
+
+.Meal__macro-list {
+  margin: 1rem
 }

@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
-import Menu from './Menu';
+import Macrofood from './Macrofood';
 
 function App() {
   return (
     <div className="App">
-      <Menu />
+      <Macrofood />
     </div>
   );
 }
